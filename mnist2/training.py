@@ -72,9 +72,6 @@ test_images  = test_images.astype('float32') / 255
 train_labels = to_categorical(train_labels)
 test_labels  = to_categorical(test_labels)
 
-# テスト出力 (0件目から20件目までを出力)
-print(train_labels[0:20])
-
 # 学習と検証を同時に行う
 history = net.fit(train_images, train_labels, epochs=5, batch_size=128, validation_data=(test_images, test_labels))
 
