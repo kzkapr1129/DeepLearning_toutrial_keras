@@ -6,7 +6,13 @@ from keras import layers
 import matplotlib
 import matplotlib.pyplot as plt
 
-# MINIST(エムニスト)の訓練用・テスト用画像(28x28)の配列とそのラベル(1が描画された画像なら'1')配列を読み込む
+'''
+MNIST(エムニスト)とは？
+  0~9までの数字が描画された画像データ群。
+  ディープラーニングを学習するときのHello Worldとして使用される
+'''
+
+# MINISTの訓練用・テスト用画像(28x28)の配列とそのラベル(1が描画された画像なら'1')配列を読み込む
 (train_images, train_labels), (test_images, test_labels) = mnist.load_data()
 
 # ニューラルネットワークの構築
@@ -36,9 +42,9 @@ net.add(layers.Dense(10, activation='softmax'))
 
 # メモ: ユニット数について
 #   ディープラーニングは層を深くすればするほど複雑な問題を解くことができるが、反面学習する必要があるパラメータの数が増えるため「過学習」という問題が起きやすくなる
-#   対策として出力層に着く前にパラメータの数を減らす必要があり、今回は784->512->10の順で減らしていった
-#   出力層が100必要になるような複雑な問題を解く場合は入力・隠れ層のユニット数・階層をもっと増やさないといけないかもしれない
-#   その場合は過学習が起きやすくなるためドロップアウト、正則化、学習データ数の水増し等を行うことがある
+#   対策として出力層に近づくごとにユニット数を減らす。今回は784->512->10の順で減らしていった
+#   100クラス分類する必要があるような複雑な問題を解く場合は入力・隠れ層のユニット数・階層をもっと増やさないといけないかもしれない
+#   その場合は過学習が起きやすくなるためドロップアウト、正則化、データ数が少ない場合は学習データ数の水増し等を行うことで過学習を抑制する
 
 # 作成したニューラルネットワークをプロットする
 net.summary()
@@ -67,10 +73,15 @@ print(train_labels[0:20])
 history = net.fit(train_images, train_labels, epochs=5, batch_size=128, validation_data=(test_images, test_labels))
 
 # 学習と検証の正解率・損失の推移を取得
-acc = history.history['acc']
-val_acc = history.history['val_acc']
-loss = history.history['loss']
-val_loss = history.history['val_loss']
+acc = history.history['acc']          # 訓練データの正解率
+val_acc = history.history['val_acc']  # 検証データの正解率
+loss = history.history['loss']        # 訓練データの損失率
+val_loss = history.history['val_loss']# 検証データの損失率
+
+# 過学習が発生していないかをグラフで確認する方法
+# → 訓練データの正解率 > 検証データの正解率で、正解率が大きく離れていれば過学習している
+# → 大きく離れていなくて近い正答率であっても、訓練データと検証データ以外のデータでは正答率が低い可能性がある(汎化性がなく過学習している)
+#   その場合は訓練データと検証データとは別に用意したテストデータで検証を行う。
 
 # グラフの縦軸(0~1), 横軸(1~5)
 epochs = range(1, len(acc) + 1)
